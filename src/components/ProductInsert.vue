@@ -1,10 +1,11 @@
 <template>
     <div>
-      <form @submit.prevent="onSubmit" novalidate>   
-        <h2>Add product</h2>
+  <form @submit.prevent="onSubmit" novalidate>   
+    <h2>Add product</h2>
+
         <div class="form-group" :class="{ 'form-group--error': $v.$error && $v.product.name.$error }">
             <label for="productName">Name:</label>
-            <input
+            <v-text-field
                 type="text"
                 v-model.trim="$v.product.name.$model"
                 class="form-control"
@@ -22,7 +23,7 @@
 
         <div class="form-group" :class="{ 'form-group--error': $v.$error && $v.product.description.$error }">
             <label for="productDesc">Description:</label>
-            <textarea
+            <v-text-field
                 v-model.trim="$v.product.description.$model"
                 class="form-control"
                 id="productDesc"
@@ -37,7 +38,7 @@
 
         <div class="form-group" :class="{ 'form-group--error': $v.$error && $v.product.price.$error }">
             <label for="productPrice">Price:</label>
-            <input
+            <v-text-field
                 type="number"
                 step="0.5"
                 v-model.trim="$v.product.price.$model"
@@ -74,27 +75,26 @@
             <input type="checkbox" v-model="product.fixedPrice" 
                 class="form-control"
                 id="fixedPrice">
-        </div> 
-        
-        <div style="margin:10px">
-         <button type="submit">Save product</button>
         </div>
+    
+    <div style="margin:10px">
+         <v-btn type="submit">Save product</v-btn>
+    </div>
 
-        <img :src="product.imageUrl" width="200" />  
+    <img :src="product.imageUrl" width="200" />  
 
-      </form>
+  </form>
     </div>
 </template>
 
 <script>
 import { required, minLength, maxLength, between } from 'vuelidate/lib/validators'
 
-const validUrlRegex = /^(https?:\/\/[a-zA-Z0-9\-.]+\.[a-zA-Z]{2,5}(?:\/\S*)?(?:[-A-Za-z0-9+&@#/%?=~_|!:,.;])+\.(?:jpg|jpeg|gif|png))$/g;
+const validUrlRegex = /^(https?:\/\/[a-zA-Z0-9\-.]+.[a-zA-Z]{2,5}(?:\/\S*)?(?:[-A-Za-z0-9+&@#/%?=~_|!:,.;])+\.(?:jpg|jpeg|gif|png))$/g
 
 export default {
-  data () {
+  data() {
     return {
-      componentName: 'Product Insert',
       product: {
         name: "",
         price: "",
@@ -102,6 +102,31 @@ export default {
         imageUrl: "",
         discontinued: false,
         fixedPrice: false
+      }
+    };
+  },
+  methods: {
+    onSubmit() {
+      this.$v.$touch()
+
+      if(!this.$v.product.$anyError) {
+        let newProduct = {
+          name: this.product.name,
+          price: this.product.price,
+          description: this.product.description || '',
+          imageUrl: this.product.imageUrl,
+          discontinued: this.product.discontinued,
+          fixedPrice: this.product.fixedPrice
+        };
+
+        this.$store.dispatch('addProduct', newProduct)
+        .then(() => {
+          this.$router.push({ name: 'products'});
+          console.log('The new product has been saved.');
+          })
+          .catch(error => {
+            console.error('There was an error:', error.response);
+          });
       }
     }
   },
@@ -129,29 +154,6 @@ export default {
       }
     }
   },
-  methods: {
-    onSubmit() {
-      this.$v.$touch()
-
-      if(!this.$v.product.$anyError) {
-        let newProduct = {
-          name: this.product.name,
-          price: this.product.price,
-          description: this.product.description || '',
-          imageUrl: this.product.imageUrl,
-          discontinued: this.product.discontinued,
-          fixedPrice: this.product.fixedPrice
-        };
-        this.$store.dispatch('addProduct', newProduct)
-        .then(() => {
-          this.$router.push({ name: 'products'});
-          })
-          .catch(error => {
-            console.log('There was an error:', error.response)
-          });
-      }
-    }
-  }
 }
 </script>
 

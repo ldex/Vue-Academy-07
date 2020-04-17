@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import ProductService from '@/services/ProductService.js';
+import axios from 'axios'
 
 Vue.use(Vuex)
 
@@ -8,9 +9,17 @@ export default new Vuex.Store({
   state: {
     isLoading: false,
     products: [],
-    product: {}
+    product: {},
+    token: null
   },
   mutations: {
+    SET_TOKEN(state, payload) {
+      state.token = payload
+      localStorage.setItem('auth_token', JSON.stringify(payload))
+      axios.defaults.headers.common['Authorization'] = `Bearer ${
+        payload
+      }`
+    },
     SET_LOADING_STATUS(state) {
       state.isLoading = !state.isLoading;
     },
@@ -30,6 +39,16 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    login ({ commit }, credentials) {
+      return axios
+        .post('http://www.mocky.io/v2/5b9149823100002a00939952', credentials) // mocky.io allows us to fake a successful authentication from the server
+        .then(({ data }) => {
+          commit('SET_TOKEN', data.token)
+        })
+    },
+    setAuthToken({ commit }, token) {
+      commit('SET_TOKEN', token)
+    },
     // object destructuring to get state and commit from the Vuex context object: { state, commit }.
     deleteProduct({commit}, id) {
       return ProductService.deleteProduct(id)
@@ -66,8 +85,9 @@ export default new Vuex.Store({
   getters: {
     getProductById: state => id => {
       return state.products.find(product => product.id === id);
+    },    
+    loggedIn(state) {
+      return !!state.token
     }
-  },
-  modules: {
   }
 })

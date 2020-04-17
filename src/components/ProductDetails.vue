@@ -15,7 +15,7 @@
         <p>Fixed price? {{product.fixedPrice}}</p>
         <p>Discontinued? {{product.discontinued}}</p>
         <p>Modified date: {{product.modifiedDate | formatDate('MM/DD/YYYY hh:mm') }}</p>  
-        <button @click="onDelete(product.id)">Delete</button>             
+        <v-btn @click="onDelete(product.id)">Delete</v-btn>             
       </div>
     </section>
   </div>

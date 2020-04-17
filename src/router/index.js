@@ -5,6 +5,8 @@ import Products from '../views/Products.vue'
 import Error from '../views/Error.vue'
 import ProductDetails from '@/components/ProductDetails.vue';
 import ProductInsert from '@/components/ProductInsert.vue';
+import Admin from '@/views/Admin.vue';
+import Login from '@/views/Login.vue';
 
 Vue.use(VueRouter)
 
@@ -13,6 +15,17 @@ Vue.use(VueRouter)
     path: '/',
     name: 'Home',
     component: Home
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: Login
+  },
+  {
+    path: '/admin',
+    name: 'admin',
+    component: Admin,
+    meta: { requiresAuth: true }
   },
   {
     path: '/products',
@@ -54,6 +67,15 @@ function castRouteParamsId(route) {
 const router = new VueRouter({
   mode: 'history',
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    const loggedIn = localStorage.getItem('auth_token')
+    if(!loggedIn) {
+      next('/login')
+    } else next()
+  } else next()  
 })
 
 export default router

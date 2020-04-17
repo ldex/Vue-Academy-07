@@ -7,6 +7,7 @@ import Vue2Filters from 'vue2-filters'
 import formatDateFilter from './filters/formatDateFilter';
 import logOnCreatedMixin from './mixins/logOnCreatedMixin';
 import store from './store'
+import vuetify from './plugins/vuetify';
 
 Vue.mixin(logOnCreatedMixin);
 Vue.filter('formatDate', formatDateFilter);
@@ -30,5 +31,6 @@ Vue.config.errorHandler = function (err, vm, info) {
 new Vue({
   router,
   store,
+  vuetify,
   render: h => h(App)
 }).$mount('#app')

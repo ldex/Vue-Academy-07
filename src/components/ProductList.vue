@@ -1,14 +1,30 @@
 <template>
     <div>
         <h2>{{ title }}</h2>
-        <fieldset class="filters">
-          Sort by: 
-          <button @click="sort('name')">Name</button>
-          <button @click="sort('price')">Price</button>
-          <button @click="sort('modifiedDate')">Date</button>
- 
-          <span>Filter by name: <input v-model="filterName" /></span>
-        </fieldset>
+
+    <fieldset>    
+      <v-container fluid>
+        <v-row align="start" justify="start">
+          <v-col cols="auto">
+            Sort by:
+            <v-btn @click="sort('name')">Name</v-btn>
+            <v-btn @click="sort('price')">Price</v-btn>
+            <v-btn @click="sort('modifiedDate')">Date</v-btn>
+          </v-col>
+          <v-col cols="4">
+            <v-text-field
+              class="np-text-field"
+              label="Filter by name:"
+              outlined
+              v-model="filterName"
+            />
+          </v-col>
+          <v-col cols="auto">
+            {{ productsCount }} products <span v-if="filtered">(filtered)</span>
+          </v-col>
+        </v-row>
+      </v-container>
+    </fieldset>
         <ul class="products">
             <li v-for="product in sortedFilteredPaginatedProducts" :key="product.id"
                 :class='{ discontinued: product.discontinued, selected: selectedProduct === product }'
@@ -22,13 +38,13 @@
         <div class="right">
           <router-link to="/product/insert">Create new product</router-link>
         </div>
-        <button @click="prevPage" :disabled="pageNumber===1">
+        <v-btn @click="prevPage" :disabled="pageNumber===1">
           &lt; Previous
-        </button>
+        </v-btn>
         Page {{ pageNumber }}
-        <button @click="nextPage" :disabled="pageNumber >= pageCount">
+        <v-btn @click="nextPage" :disabled="pageNumber >= pageCount">
           Next &gt;
-        </button>
+        </v-btn>
     </div>
 </template>
 
@@ -36,6 +52,9 @@
 
     export default {
       computed: {
+        filtered() {
+          return this.filterName.length > 0;
+        },
         filteredProducts() {
           let filter = new RegExp(this.filterName, 'i')
           return this.products.filter(el => el.name.match(filter))
@@ -59,6 +78,9 @@
             let l = this.filteredProducts.length,
               s = this.pageSize;
             return Math.ceil(l / s);
+        },
+        productsCount() {
+          return this.filteredProducts.length
         }
       },
         props: {
@@ -121,9 +143,9 @@
 </script>
 
 <style lang="css" scoped>
-  .filters {
-    padding: 10px
-  }
+.np-text-field {
+  height: 45px;
+}
   .products {
     margin: 0;
     list-style-type: none;
